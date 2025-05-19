@@ -1,10 +1,17 @@
+// mockup/app/page.tsx
 "use client"
 
+import { useState, useEffect } from "react" // Import hooks
 import Image from "next/image"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+// Icons for Agrify sections
 import { Check, ChevronRight, Play, Leaf, MapPin, Brain, ShoppingCart, MessageCircle, Lock, Globe } from "lucide-react"
-import { NavBar } from "@/components/nav-bar"
+// Icons for the new Agrify Hero (ArrowRight is used for the button)
+import { ArrowRight } from "lucide-react"
+import { cn } from "@/lib/utils" // For conditional classnames
+
 import { Footer } from "@/components/footer"
 import { FeatureCard } from "@/components/feature-card"
 import { BenefitItem } from "@/components/benefit-item"
@@ -16,88 +23,157 @@ import { motion } from "framer-motion"
 import { AnimatedText } from "@/components/ui/animated-text"
 import { AnimatedGradientBorder } from "@/components/ui/animated-gradient-border"
 
-export default function Home() {
-  return (
-    <main className="min-h-screen overflow-hidden">
-      <NavBar />
+// Define the new navigation links that appear on scroll
+const scrolledNavLinks = [
+  { label: "Disease Detection", href: "/disease-detection" },
+  { label: "Crop Recommendation", href: "/crop-recommendation" },
+  { label: "AI Assistant", href: "/" },
+  { label: "Marketplace", href: "/marketplace" },
+  { label: "Community", href: "/" },
+];
 
-      {/* Hero Section */}
-      <section className="relative h-[90vh] flex items-center">
-        <div className="absolute inset-0 z-0">
-          <Image
-            src="/images/hero-bg.png"
-            alt="Lush agricultural field with technology overlay"
-            fill
-            className="object-cover"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#2E462F]/80 to-transparent" />
-          <Spotlight className="hidden md:block" />
+export default function Home() {
+  const [isNavScrolled, setIsNavScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 50) { // Threshold for navbar style change
+        setIsNavScrolled(true);
+      } else {
+        setIsNavScrolled(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    // Cleanup function to remove the event listener
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []); // Empty dependency array means this effect runs once on mount and cleanup on unmount
+
+  return (
+    // Main container: Your original main tag
+    <main className="min-h-screen overflow-x-hidden">
+      
+      {/* New Agrify Hero Section (Magic UI Style) */}
+      <section className="relative flex flex-col items-center justify-start min-h-[70vh] sm:min-h-[80vh] pt-0 pb-20 text-white overflow-hidden bg-gradient-to-br from-emerald-800 via-green-900 to-neutral-950">
+        
+        {/* Top Navigation - Now with conditional sticky styling */}
+        <div 
+          className={cn(
+            "w-full mx-auto px-4 md:px-6 py-3.5 z-50 transition-all duration-300 ease-in-out", 
+            isNavScrolled 
+              ? "fixed top-0 left-0 right-0 bg-emerald-950/90 backdrop-blur-md shadow-xl" 
+              : "absolute top-0 left-0 right-0 bg-transparent py-4" 
+          )}
+        >
+          <div className="max-w-7xl mx-auto flex items-center justify-between"> {/* Increased max-width for more space */}
+            <Link href="/" className="text-2xl font-semibold text-white tracking-tight flex-shrink-0">
+              Agrify
+            </Link>
+
+            {/* Conditionally rendered new navigation links for scrolled state */}
+            {isNavScrolled && (
+              <nav className="hidden md:flex items-center space-x-1 lg:space-x-2 mx-4 flex-grow justify-center"> {/* Added mx-4 for spacing from logo/auth buttons */}
+                {scrolledNavLinks.map((item) => (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    className="text-xs lg:text-sm font-medium text-emerald-100 hover:text-white transition-colors px-2 py-1.5 rounded-md hover:bg-emerald-800/70"
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </nav>
+            )}
+
+            {/* YOUR ORIGINAL LOGIN/SIGNUP BUTTONS - Preserved Exactly */}
+            <div className={cn(
+                "flex items-center space-x-3 sm:space-x-4 flex-shrink-0",
+                !isNavScrolled && "ml-auto" // If scrolledNav is not there, push auth buttons to right
+                )}
+            >
+              <Link href="/login" passHref legacyBehavior>
+                <Button
+                  asChild 
+                  variant="default" // As per your provided code
+                  size="sm"
+                  className={cn(
+                    "text-sm font-medium transition-colors rounded-md px-4 py-1.5",
+                    isNavScrolled // Your conditional styling
+                      ? "border-emerald-600 text-emerald-100 hover:bg-emerald-700 hover:text-white"
+                      : "border-white/50 text-neutral-200 hover:bg-white/10 hover:text-white"
+                  )}
+                >
+                  <a>Log in</a>
+                </Button>
+              </Link>
+              <Link href="/signup" passHref legacyBehavior>
+                <Button
+                  asChild
+                  variant="default" 
+                  size="sm"
+                  className={cn(
+                    "text-white rounded-md px-4 py-1.5 text-sm font-medium transition-colors",
+                    isNavScrolled // Your conditional styling
+                      ? "bg-emerald-600 hover:bg-emerald-500" 
+                      : "bg-white/20 hover:bg-white/30 backdrop-blur-sm"
+                  )}
+                >
+                  <a>Sign up</a>
+                </Button>
+              </Link>
+            </div>
+          </div>
         </div>
 
-        <div className="container relative z-10 mx-auto px-4 md:px-6">
+        {/* Main Hero Content - Added padding-top to clear the absolute navbar */}
+        <div className="flex flex-col items-center text-center max-w-3xl mx-auto px-4 md:px-6 z-10 pt-28 sm:pt-32">
+          
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight text-neutral-50"
+          >
+            Agrify: Cultivating
+            <br />
+            Tomorrow's Harvest, Today.
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="text-base sm:text-lg text-neutral-300 max-w-2xl mx-auto mb-10 leading-relaxed"
+          >
+            Revolutionize your farming with AI-powered insights for disease detection, crop recommendations, direct market access, and a thriving global community.
+          </motion.p>
+
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="max-w-3xl text-white"
+            transition={{ duration: 0.8, delay: 0.3 }}
           >
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 relative">
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-white to-white/80">
-                Agrify: Cultivating Tomorrow's Harvest, Today.
-              </span>
-              <motion.span
-                className="absolute -bottom-2 left-0 w-24 h-1 bg-[#5DBB63]"
-                initial={{ width: 0 }}
-                animate={{ width: "6rem" }}
-                transition={{ duration: 1, delay: 1 }}
-              />
-            </h1>
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
-              className="text-xl md:text-2xl mb-8 text-white/90"
-            >
-              Revolutionize your farming with AI-powered insights for disease detection, crop recommendations, direct
-              market access, and a thriving global community.
-            </motion.p>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.8 }}
-              className="flex flex-col sm:flex-row gap-4"
-            >
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button size="lg" className="bg-[#5DBB63] hover:bg-[#4CA952] text-white group">
-                  Get Started with Agrify
-                  <ChevronRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                </Button>
-              </motion.div>
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="bg-white/10 backdrop-blur-sm text-white border-white/30 hover:bg-white/20 group"
-                >
-                  <Play className="mr-2 h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
-                  Watch Product Demo
-                </Button>
-              </motion.div>
-            </motion.div>
-          </motion.div>
-        </div>
-
-        <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 1.5, repeat: Number.POSITIVE_INFINITY, repeatType: "reverse" }}
-          >
-            <ChevronRight size={30} className="text-white rotate-90" />
+            <Link href="/dashboard" passHref>
+              <Button
+                asChild // Button will render as an 'a' tag due to Link and passHref
+                size="lg"
+                // Styling for the 'a' tag itself (the button's outer appearance)
+                className="bg-emerald-500 text-white hover:bg-emerald-600 font-semibold group rounded-md px-8 py-3 text-base shadow-lg hover:shadow-emerald-500/50 transition-all duration-300"
+              >
+                {/* This inner span receives the flex properties to layout its children */}
+                <span className="flex items-center space-x-2">
+                  <span>Get Started with Agrify</span>
+                  <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
+                </span>
+              </Button>
+            </Link>
           </motion.div>
         </div>
       </section>
+
+      {/* ========= THE REST OF THE AGRIFY PAGE CONTENT STARTS HERE ========= */}
 
       {/* What is Agrify / SDGs Section */}
       <section className="py-20 bg-[#F5F5DC]/30 relative">
@@ -394,7 +470,7 @@ export default function Home() {
                 title="Precision Crop Recommendation"
                 description="Tailored crop suggestions based on weather, soil data (pH, N, H, K), and location. Fertilizer guidance included."
                 ctaText="Get Recommendation"
-                imageSrc="/images/crop-field.png"
+                imageSrc="/images/crop-field.jpg"
               />
             </AnimatedSection>
 
@@ -415,7 +491,7 @@ export default function Home() {
                 title="Agri-Marketplace"
                 description="Buy quality seeds, fertilizers, tools. Farmers can sell produce directly. Affordable & transparent."
                 ctaText="Explore Market"
-                imageSrc="/images/marketplace.png"
+                imageSrc="/images/marketplace.jpeg"
               />
             </AnimatedSection>
 
@@ -426,7 +502,7 @@ export default function Home() {
                 title="Global Farmer Community"
                 description="Connect, share, and learn with farmers, experts, and consumers worldwide."
                 ctaText="Join the Conversation"
-                imageSrc="/images/community.png"
+                imageSrc="/images/community.jpeg"
               />
             </AnimatedSection>
 
@@ -468,7 +544,7 @@ export default function Home() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                   <Button variant="outline" className="border-[#2E462F] text-[#2E462F] group">
-                    <Image src="/images/app-store.png" alt="App Store" width={24} height={24} className="mr-2" />
+                    <Image src="/images/app-store.jpeg" alt="App Store" width={24} height={24} className="mr-2" />
                     <span className="relative">
                       Download on the App Store
                       <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-[#2E462F]/20 transform origin-left scale-x-0 transition-transform duration-300 group-hover:scale-x-100" />
@@ -477,7 +553,7 @@ export default function Home() {
                 </motion.div>
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                   <Button variant="outline" className="border-[#2E462F] text-[#2E462F] group">
-                    <Image src="/images/google-play.png" alt="Google Play" width={24} height={24} className="mr-2" />
+                    <Image src="/images/play-store.jpeg" alt="Google Play" width={24} height={24} className="mr-2" />
                     <span className="relative">
                       Get it on Google Play
                       <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-[#2E462F]/20 transform origin-left scale-x-0 transition-transform duration-300 group-hover:scale-x-100" />
